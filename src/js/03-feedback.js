@@ -8,16 +8,16 @@ getFormData();
 form.addEventListener('submit', onFormSubmit);
 form.addEventListener('input', throttle(onFormInput, 500));
 
-function onFormSubmit(event) {
-  event.preventDefault();
+function onFormSubmit(e) {
+  e.preventDefault();
   form.reset();
   localStorage.removeItem(FORM_KEY);
 }
 
-function onFormInput(event) {
+function onFormInput(e) {
   let formData = localStorage.getItem(FORM_KEY);
   formData = formData ? JSON.parse(formData) : {};
-  formData[event.target.name] = event.target.value;
+  formData[e.target.name] = e.target.value;
   formData = localStorage.setItem(FORM_KEY, JSON.stringify(formData));
 }
 
