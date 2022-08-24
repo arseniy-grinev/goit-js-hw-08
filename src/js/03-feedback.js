@@ -1,44 +1,34 @@
 import throttle from 'lodash.throttle';
 
-const feedbackForm = document.querySelector('.feedback-form');
-const emailInput = document.querySelector('[name=email]');
-const messageInput = document.querySelector('[name=message]');
+const form = document.querySelector('.feedback-form');
+const FORM_KEY = 'feedback-form-state';
 
-const SAVED_INPUT = 'feedback-form-state';
-const formSavedData = {};
+getFormData();
 
-feedbackForm.addEventListener('input', throttle(onInput, 500));
-feedbackForm.addEventListener('submit', onSubmit);
+form.addEventListener('submit', onFormSubmit);
+form.addEventListener('input', throttle(onFormInput, 500));
 
-initAutocomplete();
-
-function onInput(e) {
-  formSavedData[e.target.name] = e.target.value;
-  const savedText = JSON.stringify(formSavedData);
-  localStorage.setItem(SAVED_INPUT, savedText);
+function onFormSubmit(event) {
+  event.preventDefault();
+  form.reset();
+  localStorage.removeItem(FORM_KEY);
 }
 
-function onSubmit(e) {
-    e.preventDefault(); 
-  const save = localStorage.getItem(SAVED_INPUT);
-//   console.log(JSON.parse(save));
-  localStorage.removeItem(SAVED_INPUT);
-  e.target.reset();
+function onFormInput(event) {
+  let formData = localStorage.getItem(FORM_KEY);
+  formData = formData ? JSON.parse(formData) : {};
+  formData[event.target.name] = event.target.value;
+  formData = localStorage.setItem(FORM_KEY, JSON.stringify(formData));
 }
 
-function initAutocomplete() {
-  const savedInput = localStorage.getItem(SAVED_INPUT);
-
-  if (savedInput) {
-    const textAutocomplete = JSON.parse(savedInput);
-    // console.log(textAutocomplete);
-    textAutocomplete.message
-      ? (messageInput.value = textAutocomplete.message)
-      : (messageInput.value = '');
-
-    textAutocomplete.email
-      ? (emailInput.value = textAutocomplete.email)
-      : (emailInput.value = '');
-
+function getFormData() {
+  let formData = localStorage.getItem(FORM_KEY);
+  if (formData) {
+    formData = JSON.parse(formData);
+    Object.entries(formData).forEach(([name, value]) => {
+      form.elements[name].value = value;
+    });
   }
 }
+
+
